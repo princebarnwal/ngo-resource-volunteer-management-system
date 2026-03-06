@@ -1,0 +1,67 @@
+const AdminDonationsScreen = ({ onBack, userData }: { onBack: () => void; userData: any }) => {
+  const [donations, setDonations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDonations();
+  }, []);
+
+  const fetchDonations = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/donations/ngo/${userData._id}`);
+      const data = await response.json();
+      if (data.success) {
+        setDonations(data.donations || []);
+      }
+    } catch (error) {
+      console.error('Error fetching donations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalAmount = donations.reduce((sum, d) => sum + (d.amount || 0), 0);
+
+  return (
+    <div className="h-full bg-gray-50 flex flex-col">
+      <AndroidHeader title="Donations" onBack={onBack} />
+      <div className="p-4 space-y-4 overflow-y-auto pb-10">
+        <MaterialCard className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <p className="text-sm opacity-80">Total Donations Received</p>
+          <p className="text-3xl font-bold mt-1">₹{totalAmount.toLocaleString()}</p>
+          <p className="text-xs opacity-70 mt-2">{donations.length} donations</p>
+        </MaterialCard>
+
+        <h4 className="font-bold text-gray-800 px-2">Recent Donations</h4>
+        
+        {loading ? (
+          <div className="text-center py-8 text-gray-500">Loading...</div>
+        ) : donations.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">No donations yet</div>
+        ) : (
+          donations.map(donation => (
+            <MaterialCard key={donation._id} className="space-y-2">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Heart size={20} className="text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-800">{donation.donor_name}</p>
+                    <p className="text-xs text-gray-500">{donation.donor_email}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold text-lg text-blue-600">₹{donation.amount}</p>
+                </div>
+              </div>
+              {donation.message && (
+                <p className="text-sm text-gray-600 italic pl-13">"{donation.message}"</p>
+              )}
+            </MaterialCard>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
