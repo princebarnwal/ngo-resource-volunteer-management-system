@@ -17,7 +17,7 @@ def verify_password(stored_password: Any, submitted_password: str) -> bool:
 
     # Support records created by the old sample scripts until they are upgraded.
     legacy_hash = hashlib.sha256(submitted_password.encode("utf-8")).hexdigest()
-    return stored_password == legacy_hash
+    return stored_password == legacy_hash or stored_password == submitted_password
 
 
 def is_password_hash(password: Any) -> bool:
