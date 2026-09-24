@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from models.ngo_model import NGO
 from utils.security import hash_password, is_password_hash, public_account, verify_password
+from utils.validation import validate_email, validate_password
 
 def ngo_login():
     try:
@@ -11,6 +12,10 @@ def ngo_login():
         password = data.get('password')
         if not email or not password:
             return jsonify({'success': False, 'error': 'Email and password are required'}), 400
+        email_error = validate_email(email)
+        password_error = validate_password(password)
+        if email_error or password_error:
+            return jsonify({'success': False, 'error': email_error or password_error}), 400
         
         ngo = NGO.find_by_email(email)
         if ngo and verify_password(ngo.get('password'), password):
@@ -31,6 +36,9 @@ def ngo_register():
         password = data.get('password')
         if not email or not password:
             return jsonify({'success': False, 'error': 'Email and password are required'}), 400
+        email_error = validate_email(email)
+        if email_error:
+            return jsonify({'success': False, 'error': email_error}), 400
         
         if NGO.find_by_email(email):
             return jsonify({'success': False, 'error': 'Email already exists'}), 400

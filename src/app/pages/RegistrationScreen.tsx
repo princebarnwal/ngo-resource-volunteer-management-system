@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { CheckCircle2 } from "lucide-react";
 import { API_BASE_URL } from "../../config";
 import AndroidHeader from "../components/shared/AndroidHeader";
+import { isValidEmail, validatePassword } from "../utils/validation";
 
 const availableSkills = ["Community Outreach", "Event Planning", "Fundraising", "Teaching & Mentoring", "Healthcare Support", "Food Distribution", "Disaster Relief", "Environmental Conservation", "Child Welfare", "Elderly Care", "Social Media Management", "Content Writing", "Photography & Videography", "Graphic Design", "Web Development", "Legal Aid", "Financial Management", "Translation Services", "Counseling & Support", "Administrative Support"];
 
@@ -10,6 +11,7 @@ const RegistrationScreen = ({ onBack, onRegister }: { onBack: () => void; onRegi
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", password: "", skills: [] as string[] });
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [error, setError] = useState("");
 
   const toggleSkill = (skill: string) => {
     setFormData(prev => ({
@@ -19,10 +21,20 @@ const RegistrationScreen = ({ onBack, onRegister }: { onBack: () => void; onRegi
   };
 
   const handleRegister = async () => {
-    if (!formData.name || !formData.email || !formData.password) {
-      alert("Please fill in all required fields");
+    if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
+      setError("Name, email, and password are required");
       return;
     }
+    if (!isValidEmail(formData.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+    setError("");
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
@@ -31,7 +43,7 @@ const RegistrationScreen = ({ onBack, onRegister }: { onBack: () => void; onRegi
       });
       if (!response.ok) {
         const data = await response.json();
-        alert("Registration failed: " + (data.error || "Unknown error"));
+        setError(data.error || "Registration failed");
         return;
       }
       const data = await response.json();
@@ -39,16 +51,18 @@ const RegistrationScreen = ({ onBack, onRegister }: { onBack: () => void; onRegi
         setSuccessMessage("Registration successful! Redirecting to login...");
         setTimeout(() => onRegister(), 2000);
       } else {
-        alert("Registration failed: " + data.error);
+        setError(data.error || "Registration failed");
       }
     } catch (error) {
-      alert("Cannot connect to server. Please start the backend server.");
+      setError("Cannot connect to the server. Please try again.");
     }
   };
 
   return (
     <div className="h-full bg-white flex flex-col">
       <AndroidHeader title="Register" onBack={onBack} />
+
+      {error && <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{error}</div>}
 
       {successMessage && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">

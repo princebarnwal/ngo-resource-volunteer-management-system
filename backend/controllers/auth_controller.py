@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from models.user_model import User
 from utils.security import hash_password, is_password_hash, public_account, verify_password
+from utils.validation import validate_email, validate_password
 
 def register():
     try:
@@ -11,6 +12,10 @@ def register():
         password = data.get('password')
         if not email or not password:
             return jsonify({'success': False, 'error': 'Email and password are required'}), 400
+        email_error = validate_email(email)
+        password_error = validate_password(password)
+        if email_error or password_error:
+            return jsonify({'success': False, 'error': email_error or password_error}), 400
         
         if User.find_by_email(email):
             return jsonify({'success': False, 'error': 'Email already exists'}), 400
@@ -31,6 +36,9 @@ def login():
         password = data.get('password')
         if not email or not password:
             return jsonify({'success': False, 'error': 'Email and password are required'}), 400
+        email_error = validate_email(email)
+        if email_error:
+            return jsonify({'success': False, 'error': email_error}), 400
         
         user = User.find_by_email(email)
         if user and verify_password(user.get('password'), password):

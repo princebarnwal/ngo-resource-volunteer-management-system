@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { HandHeart, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { API_BASE_URL } from "../../config";
 import { Role } from "../types";
+import { isValidEmail } from "../utils/validation";
 
 const LoginScreen = ({ onLogin, onRegister, onNGORegister }: { onLogin: (role: Role, userData: any) => void; onRegister: () => void; onNGORegister: () => void }) => {
   const [role, setRole] = useState<Role>("volunteer");
@@ -12,8 +13,13 @@ const LoginScreen = ({ onLogin, onRegister, onNGORegister }: { onLogin: (role: R
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
-    if (!email || !password) {
-      setError("Please enter email and password");
+    if (!email.trim() || !password) {
+      setError("Please enter both email and password");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Please enter a valid email address");
       setTimeout(() => setError(""), 3000);
       return;
     }
