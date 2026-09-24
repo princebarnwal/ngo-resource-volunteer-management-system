@@ -1,13 +1,12 @@
 from config.database import get_database
 from models.user_model import User
-import hashlib
+from utils.security import hash_password
 from datetime import datetime
 
 db = get_database()
 
 # Password for all users
 password = "qwertyuiop"
-hashed_password = hashlib.sha256(password.encode()).hexdigest()
 
 sample_users = [
     {
@@ -121,11 +120,15 @@ print("Adding sample volunteer users...\n")
 
 for user_data in sample_users:
     try:
+        if User.find_by_email(user_data['email']):
+            print(f"- Skipped existing user: {user_data['email']}")
+            continue
+
         user_insert = {
             'name': user_data['name'],
             'email': user_data['email'],
             'phone': user_data['phone'],
-            'password': hashed_password,
+            'password': hash_password(password),
             'skills': user_data['skills'],
             'availability': user_data['availability'],
             'role': 'volunteer',

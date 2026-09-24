@@ -1,6 +1,6 @@
 from config.database import get_database
 from models.ngo_model import NGO
-import hashlib
+from utils.security import hash_password
 from datetime import datetime
 
 db = get_database()
@@ -102,15 +102,15 @@ print("Adding sample NGOs to database...\n")
 
 for ngo_data in sample_ngos:
     try:
-        # Hash password
-        password = ngo_data['password']
-        hashed_password = hashlib.sha256(password.encode()).hexdigest()
+        if NGO.find_by_email(ngo_data['email']):
+            print(f"- Skipped existing NGO: {ngo_data['name']}")
+            continue
         
         # Prepare data
         ngo_insert = {
             'name': ngo_data['name'],
             'email': ngo_data['email'],
-            'password': hashed_password,
+            'password': hash_password(ngo_data['password']),
             'phone': ngo_data['phone'],
             'address': ngo_data['address'],
             'registrationNumber': ngo_data['registrationNumber'],

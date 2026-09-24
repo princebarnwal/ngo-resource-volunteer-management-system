@@ -13,9 +13,29 @@ pip install -r requirements.txt
 
 3. Configure environment variables in `.env` file
 
+For MongoDB Atlas, set `MONGODB_URI` to the connection string copied from
+Atlas **Connect → Drivers** and set `DATABASE_NAME` to the database name.
+Never commit `.env` or expose `MONGODB_URI` in frontend code.
+
+For a Vercel frontend, set `CORS_ORIGINS` to the exact Vercel URL, for example:
+```env
+CORS_ORIGINS=https://ngo-resource-volunteer-management-s.vercel.app
+```
+
 4. Run the application:
 ```bash
 python app.py
+```
+
+For production, run with a WSGI server:
+```bash
+gunicorn app:app
+```
+
+The deployed frontend must also define this Vercel environment variable and
+then be redeployed:
+```env
+VITE_API_URL=https://ngoconnect-backend.onrender.com
 ```
 
 ## API Endpoints

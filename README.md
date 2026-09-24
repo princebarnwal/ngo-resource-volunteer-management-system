@@ -126,6 +126,25 @@ python app.py
 npm run build
 ```
 
+### Deployment configuration
+
+Set these environment variables in the hosting dashboards; do not commit
+production secrets:
+
+**Render backend**
+```env
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-host>/ngoconnect?retryWrites=true&w=majority
+DATABASE_NAME=ngoconnect
+CORS_ORIGINS=https://ngo-resource-volunteer-management-s.vercel.app
+```
+
+**Vercel frontend**
+```env
+VITE_API_URL=https://ngoconnect-backend.onrender.com
+```
+
+Redeploy both services after changing environment variables.
+
 ## 📁 Project Structure
 
 ```

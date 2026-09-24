@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "motion/react";
-import { HandHeart, ArrowRight } from "lucide-react";
+import { HandHeart, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { API_BASE_URL } from "../../config";
 import { Role } from "../types";
 
@@ -8,6 +8,7 @@ const LoginScreen = ({ onLogin, onRegister, onNGORegister }: { onLogin: (role: R
   const [role, setRole] = useState<Role>("volunteer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async () => {
@@ -108,14 +109,24 @@ const LoginScreen = ({ onLogin, onRegister, onNGORegister }: { onLogin: (role: R
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full p-3.5 text-base bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F97316] focus:border-[#F97316] outline-none transition-all"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleLogin()}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className="w-full p-3.5 pr-12 text-base bg-white border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#F97316] focus:border-[#F97316] outline-none transition-all"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleLogin()}
+                />
+                <button
+                  type="button"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button

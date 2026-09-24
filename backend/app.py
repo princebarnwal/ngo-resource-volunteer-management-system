@@ -14,7 +14,12 @@ from routes.donation_routes import create_donation_routes
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv('CORS_ORIGINS', '*').split(',')
+    if origin.strip()
+]
+CORS(app, origins=cors_origins)
 
 db = get_database()
 
@@ -36,6 +41,6 @@ def health():
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     print(f"\nNGOConnect Backend Server Starting...")
-    print(f"Server running at: http://localhost:{port}")
-    print(f"CORS enabled for all origins\n")
+    print(f"Server running on port {port}")
+    print(f"CORS origins: {', '.join(cors_origins)}\n")
     app.run(debug=True, port=port, host='0.0.0.0')
